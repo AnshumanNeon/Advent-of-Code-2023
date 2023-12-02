@@ -2,70 +2,45 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-int arr[] = { 0 };
-int n = 0;
-
-int firstDigit(int n)
+int convert_to_single_digit(int x)
 {
-  while (n >= 10)
+	if(x >= 10)
 	{
-    n /= 10;
+		x = x - (x % 10);
+		x = x / 10;
+
+		return convert_to_single_digit(x);
 	}
-     
-  return n;
+	return x;
 }
 
-int give_first_and_last_only(int n)
-{
-	int last_digit = n % 10;
-	int first_digit = firstDigit(n);
+int get_number(char* line)
+{	
+	int last_digit = -1, first_digit = -1;
+	int i = 0;
 
-	return (first_digit * 10) + last_digit;
-}
+	char* err = NULL;
 
-void get_number(char* line)
-{
-	char *p = line;
-
-	while(*p)
+	while(line[i] != '\0')
 	{
-    if(isdigit(*p) || ( (*p == '-' || *p == '+') && isdigit(*(p + 1)) ))
+		if(isdigit(line[i]))
 		{
-      int val = (int)strtol(p, &p, 10);
+			if(first_digit < 0) first_digit = strtol(&line[i], NULL, 10);
 
-			if(val - 10 < 0) arr[n] = val * 11;
-			else
-			{
-				if(val - 100 >= 0)
-				{
-					arr[n] = give_first_and_last_only(val);
-				}
-				else
-				{
-					arr[n] = val;
-				}
-			}
-			n++;
+			last_digit = strtol(&line[i], &err, 10);
+		}
 
-			printf("%d\n", arr[n-1]);
-    }
-		else
-		{
-      p++;
-    }
-	}
-}
-
-int sum_of_array()
-{
-	int sum = 0;
-
-	for(int i = 0; i < n; i++)
-	{
-		printf("%d\n", arr[i]);
+		i++;
 	}
 
-	return sum;
+	first_digit = convert_to_single_digit(first_digit);
+	last_digit = convert_to_single_digit(last_digit);
+
+	int res = (first_digit * 10) + last_digit;
+
+	printf("%d\n", res);
+
+	return res;
 }
 
 int main()
@@ -73,19 +48,19 @@ int main()
 	FILE* file;
 
 	file = fopen("input.txt", "r");
-
 	if(file == NULL)
 	{
 		return -1;
 	}
 
 	char line[256];
-
+	int sum = 0;
 	while (fgets(line, sizeof(line), file) != NULL)
 	{
-		get_number(line);
+		sum += get_number(line);
 	}
 
+	printf("\tSum: %d\n", sum);
 	fclose(file);
 
 	return 0;
